@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <title>کنسرت</title>
+    <style>
+        .seat {
+            width: 30px;
+            height: 30px;
+            background-color: green;
+            margin: 5px;
+            display: inline-block;
+            text-align: center;
+            line-height: 30px;
+            color: white;
+            cursor: pointer;
+        }
+        .row {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <div id="seating"></div>
+    <script>
+        const rows = 70;
+        const seatsPerRow = 10;
+        const seating = document.getElementById('seating');
+        const seats = [];
+
+        for (let i = 0; i < rows; i++) {
+            const row = document.createElement('div');
+            row.className = 'row';
+            for (let j = 0; j < seatsPerRow; j++) {
+                const seatNumber = i * seatsPerRow + j + 1;
+                const seat = document.createElement('div');
+                seat.className = 'seat';
+                seat.textContent = seatNumber;
+                seat.addEventListener('click', () => handleSeatClick(seat, seatNumber));
+                row.appendChild(seat);
+                seats.push({ seatNumber, seat });
+            }
+            seating.appendChild(row);
+        }
+
+        function handleSeatClick(seat, seatNumber) {
+            if (seat.style.backgroundColor === 'green') {
+                seat.style.backgroundColor = 'red';
+                const owner = prompt('نام صاحب صندلی را وارد کنید:');
+                if (owner) {
+                    seat.dataset.owner = owner;
+                }
+            } else if (seat.style.backgroundColor === 'red') {
+                if (confirm('آیا از حذف بلیط اطمینان دارید؟')) {
+                    seat.style.backgroundColor = 'green';
+                    delete seat.dataset.owner;
+                }
+            }
+        }
+
+        function saveToCSV() {
+            let csvContent = 'شماره صندلی,نام صاحب صندلی\n';
+            seats.forEach(({ seatNumber, seat }) => {
+                if (seat.dataset.owner) {
+                    csvContent += `${seatNumber},${seat.dataset.owner}\n`;
+                }
+            });
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'seating.csv';
+            link.click();
+        }
+
+        // Add a button to save the CSV
+        const saveButton = document.createElement('button');
+        saveButton.textContent = 'ذخیره به CSV';
+        saveButton.addEventListener('click', saveToCSV);
+        document.body.appendChild(saveButton);
+    </script>
+</body>
+</html>
